@@ -30,7 +30,7 @@ class CharacterListViewModel @Inject constructor(
     var isSearching = mutableStateOf(false)
 
     init {
-        loadCharactersPaginated()
+        loadCharacters()
     }
 
     fun searchCharacterList(query: String) {
@@ -48,7 +48,7 @@ class CharacterListViewModel @Inject constructor(
             }
             val results = listToSearch.filter {
                 it.characterName.contains(query.trim(), ignoreCase = true) ||
-                        it.race == query.trim()
+                        it.race.contains(query.trim(), ignoreCase = true)
             }
             if (isSearchStarting) {
                 cachedCharacterList = characterList.value
@@ -56,6 +56,37 @@ class CharacterListViewModel @Inject constructor(
             }
             characterList.value = results
             isSearching.value = true
+        }
+    }
+
+    fun loadCharacters() {
+        viewModelScope.launch {
+            isLoading.value = true
+            val result = repository.getCharacterList()
+            when (result) {
+                is Resource.Success -> {
+                    val characterListEntries = result.data!!.docs.mapIndexed { index, entry ->
+                        val characterName = entry.name
+                        val race = entry.race
+                        val id = entry.id
+                        CharacterListEntry(
+                            characterName = characterName,
+                            race = race,
+                            id = id
+                        )
+                    }
+                    loadError.value = ""
+                    isLoading.value = false
+                    characterList.value += characterListEntries
+                }
+                is Resource.Error -> {
+                    loadError.value = result.message!!
+                    isLoading.value = false
+                }
+                is Resource.Loading -> {
+                    isLoading.value = true
+                }
+            }
         }
     }
 

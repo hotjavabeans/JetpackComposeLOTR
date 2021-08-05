@@ -129,7 +129,7 @@ fun CharacterList(
         }
         items(itemCount) {
             if(it >= itemCount - 1 && !endReached && !isLoading && !isSearching) {
-                viewModel.loadCharactersPaginated()
+                viewModel.loadCharacters()
             }
             CharacterRow(rowIndex = it, entries = characterList, navController = navController)
         }
@@ -144,7 +144,7 @@ fun CharacterList(
         }
         if(loadError.isNotEmpty()) {
             RetrySection(error = loadError) {
-                viewModel.loadCharactersPaginated()
+                viewModel.loadCharacters()
             }
         }
     }
@@ -167,7 +167,23 @@ fun CharacterEntry(
                 Brush.verticalGradient(
                     listOf(
                         Color.White,
-                        Color.Blue,
+                        when (entry.race) {
+                            "Human" -> {
+                                Color(96, 155, 255)
+                            }
+                            "Elf" -> {
+                                Color(5,131,7)
+                            }
+                            "Dwarf" -> {
+                                Color(255,215,0)
+                            }
+                            "Hobbit" -> {
+                                Color(84,39,39)
+                            }
+                            else -> {
+                                Color.Transparent
+                            }
+                        }
                     )
                 )
             )
@@ -189,7 +205,6 @@ fun CharacterEntry(
                 text = entry.race,
                 fontFamily = FontFamily.Default,
                 fontSize = 20.sp,
-
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )

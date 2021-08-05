@@ -2,6 +2,7 @@ package com.example.jetpackcomposelotr.data.remote
 
 import com.example.jetpackcomposelotr.data.remote.responses.CharacterList
 import com.example.jetpackcomposelotr.data.remote.responses.Character
+import com.example.jetpackcomposelotr.data.remote.responses.Quote
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Path
@@ -10,6 +11,11 @@ import java.lang.Character as JavaLangCharacter
 
 
 interface LOTRApi {
+
+    @GET("character")
+    suspend fun getCharacterList(
+        @Header("Authorization") token: String
+    ): CharacterList
 
     @GET("character")
     suspend fun getCharacterList(
@@ -23,4 +29,10 @@ interface LOTRApi {
         @Header("Authorization") token: String,
         @Path("id") id: String
     ): Character
+
+    @GET("character/{id}/quote")
+    suspend fun getCharacterQuote(
+        @Header("Authorization") token: String,
+        @Path("id") id: String
+    ): Quote
 }
