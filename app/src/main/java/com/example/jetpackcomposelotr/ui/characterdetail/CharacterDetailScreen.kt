@@ -1,6 +1,8 @@
 package com.example.jetpackcomposelotr.ui.characterdetail
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -9,13 +11,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.FormatQuote
+import androidx.compose.material.icons.filled.Forward
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -23,9 +31,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.AndroidUriHandler
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.*
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -41,6 +48,7 @@ import com.example.jetpackcomposelotr.data.remote.responses.Character
 import com.example.jetpackcomposelotr.data.remote.responses.DocX
 import com.example.jetpackcomposelotr.data.remote.responses.Quote
 import com.example.jetpackcomposelotr.util.Resource
+import timber.log.Timber
 
 @Composable
 fun CharacterDetailScreen(
@@ -115,9 +123,11 @@ fun CharacterDetailScreen(
                     bottom = 16.dp
                 )
         )
-        Box(contentAlignment = Alignment.TopCenter,
+        Box(
+            contentAlignment = Alignment.TopCenter,
             modifier = Modifier
-                .fillMaxSize()) {
+                .fillMaxSize()
+        ) {
             if (characterInfo is Resource.Success) {
                 Image(
                     painter = rememberImagePainter(
@@ -220,9 +230,10 @@ fun CharacterDetailSection(
             CharacterRealmSection(data = character) //realm
             CharacterGenderSection(data = character) //gender
             CharacterDetailDataSection(data = character) //birth and death
-            CharacterWikiUrlSection(data = character)
+            CharacterQuoteSection(characterQuote = characterQuote) //quote
+            CharacterWikiUrlSection(data = character) //wiki link
         }
-        CharacterQuoteSection(characterQuote = characterQuote)
+
         /*val quotes = quoteInfo.data?.docs?.map {
             it.dialog.trim()
         }
@@ -261,7 +272,7 @@ fun CharacterRaceSection(data: DocX) {
                 .weight(1f)
                 .padding(horizontal = 8.dp)
                 .clip(CircleShape)
-                .background(color = Color(5, 131, 7))
+                .height(35.dp)
                 .background(
                     color = when (data.race) {
                         "Human" -> {
@@ -281,7 +292,6 @@ fun CharacterRaceSection(data: DocX) {
                         }
                     }
                 )
-                .height(35.dp)
         ) {
             Text(
                 text = data.race,
@@ -369,9 +379,11 @@ fun CharacterDetailDataSection(
             dataIcon = painterResource(id = R.drawable.ic_birth),
             modifier = Modifier.weight(1f)
         )
-        Spacer(modifier = Modifier
-            .size(1.dp, sectionHeight)
-            .background(Color.LightGray))
+        Spacer(
+            modifier = Modifier
+                .size(1.dp, sectionHeight)
+                .background(Color.LightGray)
+        )
         CharacterDeathSection(
             data = data,
             dataIcon = painterResource(id = R.drawable.ic_death),
@@ -397,8 +409,10 @@ fun CharacterBirthSection(data: DocX, dataIcon: Painter, modifier: Modifier = Mo
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = data.birth,
-            color = MaterialTheme.colors.onSurface
-        )
+            color = MaterialTheme.colors.onSurface,
+            fontSize = 22.sp,
+
+            )
     }
 }
 
@@ -419,86 +433,10 @@ fun CharacterDeathSection(data: DocX, dataIcon: Painter, modifier: Modifier = Mo
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = data.death,
-            color = MaterialTheme.colors.onSurface
-        )
-    }
-}
+            color = MaterialTheme.colors.onSurface,
+            fontSize = 22.sp,
 
-@Composable
-fun CharacterQuoteSection(
-    characterQuote: Resource<Quote>
-) {
-    val list = characterQuote.data?.docs?.toList()
-    var quoteState by remember { mutableStateOf("") }
-    var index by remember { mutableStateOf(0) }
-
-    Spacer(modifier = Modifier.size(10.dp))
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            Button(onClick = { index-- },
-                modifier = Modifier.padding(8.dp),
-                enabled = (index != 0)
-            ) {
-                Text(
-                    text = "<",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            /*Box() {
-                AnimatedVisibility(
-                    visible = false,
-                    enter = fadeIn(
-                        animationSpec = tween(durationMillis = duration)
-                    ),
-                    exit = fadeOut(
-                        animationSpec = tween(durationMillis = duration)
-                    )) {
-                    Text(
-                        text = title,
-                        style = TextStyle(textDecoration=null)
-                    )
-                }
-                AnimatedVisibility(
-                    visible = true,
-                    enter = fadeIn(
-                        animationSpec = tween(durationMillis = duration)
-                    ),
-                    exit = fadeOut(
-                        animationSpec = tween(durationMillis = duration)
-                    )) {
-                    Text(
-                        text = title,
-                        style = TextStyle(textDecoration = TextDecoration.LineThrough),
-                    )
-                }
-            }*/
-
-            list?.get(index)?.dialog?.let {
-                Text(
-                    text = it
-                )
-            }
-            Button(onClick = { index++ },
-                modifier = Modifier
-                .padding(8.dp),
-                /*enabled = (index == list!!.size -1)*/
-            ) {
-                Text(
-                    text = ">",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
+            )
     }
 }
 
@@ -525,8 +463,10 @@ fun CharacterWikiUrlSection(
         )
     }
     val handler = AndroidUriHandler(LocalContext.current)
-    Column(modifier = Modifier
-        .fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
         ClickableText(
             modifier = Modifier
                 .padding(16.dp)
@@ -546,7 +486,123 @@ fun CharacterWikiUrlSection(
                     }
             }
         )
+        /*Spacer(modifier = Modifier.height(20.dp))
+        val shortText = "Hi"
+        val longText = "Very long text\nthat spans across\nmultiple lines"
+        var short by remember { mutableStateOf(true) }
+        Box(modifier = Modifier
+            .background(Color.Blue, RoundedCornerShape(15.dp))
+            .clickable { short = !short }
+            .padding(20.dp)
+            .wrapContentSize()
+            .animateContentSize(
+                tween(500)
+            )
+        ) {
+            Text(text = when(short) {
+                true -> shortText
+                false -> longText
+            },
+            style = LocalTextStyle.current.copy(color = Color.White)
+            )
+        }*/
     }
 }
 
+@Composable
+fun CharacterQuoteSection(
+    characterQuote: Resource<Quote>
+) {
+    val list = characterQuote.data?.docs?.toList()
+    var index by remember { mutableStateOf(0) }
 
+    Spacer(modifier = Modifier.size(10.dp))
+
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .height(180.dp)) {
+        Column(
+            modifier = Modifier
+                .weight(0.5f)
+                .align(Alignment.CenterVertically)
+        ) {
+            IconButton(
+                onClick = { index-- },
+                modifier = Modifier
+                    .padding(4.dp),
+                enabled = (index != 0),
+                content = {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(26.dp)
+                    )
+                }
+            )
+        }
+        Column(
+            modifier = Modifier
+                .weight(2f)
+                .align(Alignment.CenterVertically)
+        ) {
+            if (list?.isNullOrEmpty() == false) {
+                list[index].dialog.let {
+                    val myId = "inlineContent"
+                    val text = buildAnnotatedString {
+                        appendInlineContent(myId, "[startQuote]")
+                        append(it)
+                        appendInlineContent(myId, "[endQuote]")
+                    }
+                    val inlineContent = mapOf(
+                        Pair(
+                            myId,
+                            InlineTextContent(
+                                Placeholder(
+                                    width = 26.sp,
+                                    height = 26.sp,
+                                    placeholderVerticalAlign = PlaceholderVerticalAlign.AboveBaseline
+                                )
+                            ) {
+                                Icon(
+                                    Icons.Filled.FormatQuote, "",
+                                )
+                            }
+                        )
+                    )
+                    Text(
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .wrapContentHeight()/*
+                        .weight(1f)*/,
+                        text = text,
+                        textAlign = TextAlign.Center,
+                        fontSize = 26.sp,
+                        fontStyle = FontStyle.Italic,
+                        inlineContent = inlineContent
+                    )
+                }
+            }
+        }
+        Column(
+            modifier = Modifier
+                .weight(0.5f)
+                .align(Alignment.CenterVertically),
+            verticalArrangement = Arrangement.Center
+        ) {
+            IconButton(
+                onClick = {  index++ },
+                modifier = Modifier
+                    .padding(4.dp),
+                content = {
+                    Icon(
+                        imageVector = Icons.Default.ArrowForward,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(26.dp)
+                    )
+                }
+            )
+        }
+    }
+}
