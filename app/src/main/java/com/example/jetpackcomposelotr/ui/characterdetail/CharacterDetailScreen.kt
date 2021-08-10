@@ -1,11 +1,9 @@
 package com.example.jetpackcomposelotr.ui.characterdetail
 
-import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
+import kotlin.concurrent.schedule
+import androidx.compose.animation.*
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -46,9 +44,11 @@ import coil.transform.CircleCropTransformation
 import com.example.jetpackcomposelotr.R
 import com.example.jetpackcomposelotr.data.remote.responses.Character
 import com.example.jetpackcomposelotr.data.remote.responses.DocX
+import com.example.jetpackcomposelotr.data.remote.responses.DocXX
 import com.example.jetpackcomposelotr.data.remote.responses.Quote
 import com.example.jetpackcomposelotr.util.Resource
 import timber.log.Timber
+import java.util.*
 
 @Composable
 fun CharacterDetailScreen(
@@ -216,6 +216,10 @@ fun CharacterDetailSection(
     characterInfo: Resource<Character>,
     modifier: Modifier = Modifier
 ) {
+    val quotes = mutableListOf<String>()
+    characterQuote.data?.docs?.forEach {
+        quotes.add(it.dialog)
+    }
     val scrollState = rememberScrollState()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -230,17 +234,11 @@ fun CharacterDetailSection(
             CharacterRealmSection(data = character) //realm
             CharacterGenderSection(data = character) //gender
             CharacterDetailDataSection(data = character) //birth and death
-            CharacterQuoteSection(characterQuote = characterQuote) //quote
-            CharacterWikiUrlSection(data = character) //wiki link
+            CharacterQuoteSection(quotes = quotes) //quote
+            if (!character.wikiUrl.isNullOrEmpty()) {
+                CharacterWikiUrlSection(data = character) //wiki link
+            }
         }
-
-        /*val quotes = quoteInfo.data?.docs?.map {
-            it.dialog.trim()
-        }
-        CharacterQuoteSection(quoteInfo = quotes)*/
-        /*quoteInfo.data?.docs?.forEachIndexed { index, quote ->
-            CharacterQuoteSection(quote = quote)
-        }*/
     }
 }
 
@@ -411,8 +409,7 @@ fun CharacterBirthSection(data: DocX, dataIcon: Painter, modifier: Modifier = Mo
             text = data.birth,
             color = MaterialTheme.colors.onSurface,
             fontSize = 22.sp,
-
-            )
+        )
     }
 }
 
@@ -435,8 +432,7 @@ fun CharacterDeathSection(data: DocX, dataIcon: Painter, modifier: Modifier = Mo
             text = data.death,
             color = MaterialTheme.colors.onSurface,
             fontSize = 22.sp,
-
-            )
+        )
     }
 }
 
@@ -469,11 +465,11 @@ fun CharacterWikiUrlSection(
     ) {
         ClickableText(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(6.dp)
                 .align(Alignment.CenterHorizontally),
             text = annotatedLinkString,
             style = TextStyle(
-                fontSize = 30.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 textAlign = TextAlign.Center
@@ -486,38 +482,18 @@ fun CharacterWikiUrlSection(
                     }
             }
         )
-        /*Spacer(modifier = Modifier.height(20.dp))
-        val shortText = "Hi"
-        val longText = "Very long text\nthat spans across\nmultiple lines"
-        var short by remember { mutableStateOf(true) }
-        Box(modifier = Modifier
-            .background(Color.Blue, RoundedCornerShape(15.dp))
-            .clickable { short = !short }
-            .padding(20.dp)
-            .wrapContentSize()
-            .animateContentSize(
-                tween(500)
-            )
-        ) {
-            Text(text = when(short) {
-                true -> shortText
-                false -> longText
-            },
-            style = LocalTextStyle.current.copy(color = Color.White)
-            )
-        }*/
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun CharacterQuoteSection(
-    characterQuote: Resource<Quote>
+    quotes: MutableList<String>
 ) {
-    val list = characterQuote.data?.docs?.toList()
     var index by remember { mutableStateOf(0) }
+    var visible by remember { mutableStateOf(true) }
 
     Spacer(modifier = Modifier.size(10.dp))
-
     Row(modifier = Modifier
         .fillMaxWidth()
         .height(180.dp)) {
@@ -527,7 +503,13 @@ fun CharacterQuoteSection(
                 .align(Alignment.CenterVertically)
         ) {
             IconButton(
-                onClick = { index-- },
+                onClick = {
+                    visible = !visible
+                    Timer().schedule(1000) {
+                        index--
+                        visible = !visible
+                    }
+                },
                 modifier = Modifier
                     .padding(4.dp),
                 enabled = (index != 0),
@@ -546,8 +528,8 @@ fun CharacterQuoteSection(
                 .weight(2f)
                 .align(Alignment.CenterVertically)
         ) {
-            if (list?.isNullOrEmpty() == false) {
-                list[index].dialog.let {
+            if (!quotes.isNullOrEmpty()) {
+                quotes[index].let {
                     val myId = "inlineContent"
                     val text = buildAnnotatedString {
                         appendInlineContent(myId, "[startQuote]")
@@ -570,17 +552,32 @@ fun CharacterQuoteSection(
                             }
                         )
                     )
-                    Text(
-                        modifier = Modifier
-                            .padding(4.dp)
-                            .wrapContentHeight()/*
-                        .weight(1f)*/,
-                        text = text,
-                        textAlign = TextAlign.Center,
-                        fontSize = 26.sp,
-                        fontStyle = FontStyle.Italic,
-                        inlineContent = inlineContent
-                    )
+                    AnimatedVisibility(
+                        visible = visible,
+                        enter = fadeIn(
+                            animationSpec = tween(
+                                1000, 0, LinearOutSlowInEasing
+                            )
+                        ),
+                        exit = fadeOut(),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                text = text,
+                                color = MaterialTheme.colors.onSecondary,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .padding(horizontal = 8.dp),
+                                textAlign = TextAlign.Center,
+                                fontSize = 22.sp,
+                                fontStyle = FontStyle.Italic,
+                                inlineContent = inlineContent
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -591,7 +588,19 @@ fun CharacterQuoteSection(
             verticalArrangement = Arrangement.Center
         ) {
             IconButton(
-                onClick = {  index++ },
+                onClick = {
+                    visible = !visible
+                    Timer().schedule(700) {
+                        visible = if (index >= quotes.size -1) {
+                            //no index, so show previous quote
+                            !visible
+                        } else {
+                            index++
+                            !visible
+                        }
+                    }
+                },
+                enabled = (index != quotes.size -1),
                 modifier = Modifier
                     .padding(4.dp),
                 content = {
