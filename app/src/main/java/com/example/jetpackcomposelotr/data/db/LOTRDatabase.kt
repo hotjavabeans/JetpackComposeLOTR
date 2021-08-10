@@ -5,5 +5,5 @@ import androidx.room.RoomDatabase
 
 @Database(entities = [Character::class], version = 1)
 abstract class LOTRDatabase: RoomDatabase() {
-    abstract fun
+
 }

@@ -10,5 +10,5 @@ interface CharacterDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun upsert(character: Character)
 
-    fun getCharacter(): MutableL
+
 }
