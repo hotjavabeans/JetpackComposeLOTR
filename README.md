@@ -3,7 +3,7 @@ This app allows users to search a database of all characters in the Lord of the 
 
 The data is supplied by The One API (to rule them all). You can check out their website here: https://the-one-api.dev/. Unfortunately the API is limited to 100 requests every 10 minutes. 
 
-The app has been built using Jetpack Compose and has served as a great learning tool for me to learn this new and exciting framework. I will continue to update the app as I learn more.
+The app has been built using Jetpack Compose and has served as a great learning tool for me to get to grips with this new and exciting framework. I will continue to update the app as I learn more.
 
 ~~~~~~~~~
 *Aragorn and Gimli are looking at the Uruk-hai, but are separated from them by a gap*:
