@@ -8,11 +8,11 @@ The app has been built using Jetpack Compose and has served as a great learning 
 ~~~~~~~~~
 *Aragorn and Gimli are looking at the Uruk-hai, but are separated from them by a gap*:
 
-Gimli: "Oh come on, we can take ’em."<br />
-Aragorn: "It’s a long way."<br />
-Gimli: "Toss me."<br />
-Aragorn: "What?"<br />
-Gimli: "I cannot jump the distance, you’ll have to toss me."<br />
-Gimli: *pauses, looks up at Aragorn*<br />
-Gimli: "Don’t tell the Elf."<br />
+Gimli: "Oh come on, we can take ’em."
+Aragorn: "It’s a long way."
+Gimli: "Toss me."
+Aragorn: "What?"
+Gimli: "I cannot jump the distance, you’ll have to toss me."
+Gimli: *pauses, looks up at Aragorn*
+Gimli: "Don’t tell the Elf."
 Aragorn: "Not a word."
