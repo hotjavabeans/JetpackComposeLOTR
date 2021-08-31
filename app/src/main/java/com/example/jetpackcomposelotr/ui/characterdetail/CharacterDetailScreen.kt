@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material.icons.filled.Forward
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,6 +59,9 @@ fun CharacterDetailScreen(
     characterImageSize: Dp = 200.dp,
     viewModel: CharacterDetailViewModel = hiltViewModel()
 ) {
+    /* val allCharactersFromRoom = viewModel.getAllCharactersFromRoom()
+     */
+
     val characterInfo = produceState<Resource<Character>>(initialValue = Resource.Loading()) {
         value = viewModel.getCharacterInfo(characterId = characterId) /*"5cd99d4bde30eff6ebccfbe6"*/
     }.value
@@ -88,7 +92,7 @@ fun CharacterDetailScreen(
                     }
                 }
             )
-            .padding(bottom = 16.dp)
+            .padding(bottom = 8.dp) //was 16.dp
     ) {
         CharacterDetailTopSection(
             navController = navController,
@@ -106,12 +110,12 @@ fun CharacterDetailScreen(
                     top = topPadding + characterImageSize / 2f,
                     start = 16.dp,
                     end = 16.dp,
-                    bottom = 16.dp
+                    bottom = 8.dp
                 )
                 .shadow(10.dp, RoundedCornerShape(10.dp))
                 .clip(RoundedCornerShape(10.dp))
                 .background(color = MaterialTheme.colors.surface)
-                .padding(16.dp)
+                .padding(8.dp)
                 .align(Alignment.BottomCenter),
             loadingModifier = Modifier
                 .size(100.dp)
@@ -262,7 +266,7 @@ fun CharacterRaceSection(data: DocX) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .padding(16.dp)
+            .padding(8.dp)
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -305,10 +309,11 @@ fun CharacterRaceSection(data: DocX) {
 fun CharacterRealmSection(
     data: DocX
 ) {
+    // NEED TO FORMAT REALM TEXT TO SPACE AFTER COMMAS, SAME WITH BIRTH/DEATH
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -336,7 +341,7 @@ fun CharacterGenderSection(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+            .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
     ) {
         Box(
             contentAlignment = Alignment.Center,
@@ -440,7 +445,7 @@ fun CharacterDeathSection(data: DocX, dataIcon: Painter, modifier: Modifier = Mo
 fun CharacterWikiUrlSection(
     data: DocX
 ) {
-    Spacer(modifier = Modifier.height(20.dp))
+//    Spacer(modifier = Modifier.height(20.dp))
     val annotatedLinkString = buildAnnotatedString {
         val str = "Click this link to see ${data.name}'s LOTR Wiki page"
         val startIndex = str.indexOf("link")
@@ -462,10 +467,11 @@ fun CharacterWikiUrlSection(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(6.dp)
     ) {
         ClickableText(
             modifier = Modifier
-                .padding(6.dp)
+//                .padding(6.dp)
                 .align(Alignment.CenterHorizontally),
             text = annotatedLinkString,
             style = TextStyle(
@@ -496,7 +502,9 @@ fun CharacterQuoteSection(
     Spacer(modifier = Modifier.size(10.dp))
     Row(modifier = Modifier
         .fillMaxWidth()
-        .height(180.dp)) {
+        .height(164.dp),
+//        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
         Column(
             modifier = Modifier
                 .weight(0.5f)
@@ -527,6 +535,7 @@ fun CharacterQuoteSection(
             modifier = Modifier
                 .weight(2f)
                 .align(Alignment.CenterVertically)
+                .fillMaxHeight()
         ) {
             if (!quotes.isNullOrEmpty()) {
                 quotes[index].let {
@@ -563,16 +572,16 @@ fun CharacterQuoteSection(
                     ) {
                         Box(
                             modifier = Modifier
-                                .padding(8.dp)
+                                .fillMaxSize(),
                         ) {
                             Text(
-                                text = text,
                                 color = MaterialTheme.colors.onSecondary,
                                 modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .padding(horizontal = 8.dp),
+                                    .padding(horizontal = 4.dp)
+                                    .align(Alignment.Center),
+                                text = text,
                                 textAlign = TextAlign.Center,
-                                fontSize = 22.sp,
+                                fontSize = 18.sp,
                                 fontStyle = FontStyle.Italic,
                                 inlineContent = inlineContent
                             )
