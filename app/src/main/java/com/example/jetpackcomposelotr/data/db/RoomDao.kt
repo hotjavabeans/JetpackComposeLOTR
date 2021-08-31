@@ -8,7 +8,7 @@ import com.example.jetpackcomposelotr.data.remote.responses.Character
 interface RoomDao {
 
     @Query("SELECT * FROM my_character_list")
-    fun getAll(): LiveData<List<RoomEntity>>
+    fun getAll(): List<RoomEntity>
 
     @Query("SELECT * from my_character_list where uid = :id")
     fun getById(id: Int) : RoomEntity?

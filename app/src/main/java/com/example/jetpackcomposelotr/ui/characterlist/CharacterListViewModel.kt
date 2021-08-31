@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CharacterListViewModel @Inject constructor(
-    private val repository: LOTRRepository
+    private val repository: LOTRRepository,
 ) : ViewModel() {
 
     private var curPage = 0
@@ -78,6 +78,8 @@ class CharacterListViewModel @Inject constructor(
                     loadError.value = ""
                     isLoading.value = false
                     characterList.value += characterListEntries
+
+
                 }
                 is Resource.Error -> {
                     loadError.value = result.message!!
